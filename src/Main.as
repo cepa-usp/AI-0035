@@ -1,6 +1,10 @@
 ﻿package 
 {
 	import cepa.utils.ToolTip;
+	import fl.transitions.easing.None;
+	import fl.transitions.easing.Regular;
+	import fl.transitions.Tween;
+	import fl.transitions.TweenEvent;
 	import flash.display.Sprite;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -165,14 +169,24 @@
 			quadradoArraste.x = posQuadradoArraste;
 			mudaCorEspectro();
 		}
-
+		
+		private var tweenArraste:Tween;
+		private var velSec:Number = 600;
 		private function clickEspectro(e:MouseEvent):void
 		{
 			if((stage.mouseY >= espectro.y && stage.mouseY < espectro.y + espectro.height) && (stage.mouseX >= espectro.x && stage.mouseX < espectroWidth + espectro.x))
 			{
-				quadradoArraste.x = stage.mouseX;
-				mudaCorEspectro();
+				var dist:Number = Point.distance(new Point(quadradoArraste.x, 0), new Point(stage.mouseX, 0));
+				var timeDur:Number = dist / velSec;
+				tweenArraste = new Tween(quadradoArraste, "x", Regular.easeOut, quadradoArraste.x, stage.mouseX, timeDur, true);
+				tweenArraste.addEventListener(TweenEvent.MOTION_CHANGE, updateQuadrado, false, 0, true);
+				tweenArraste.addEventListener(TweenEvent.MOTION_FINISH, updateQuadrado, false, 0, true);
 			}
+		}
+		
+		private function updateQuadrado(e:TweenEvent):void 
+		{
+			mudaCorEspectro();
 		}
 
 		private function iniciaArraste(e:MouseEvent):void
