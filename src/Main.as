@@ -273,6 +273,7 @@
 			var posQuadradoArraste:Number = Math.round((((Number(entradaComprimento.text) - 400) * (espectroWidth - 1)) / 350) + espectro.x);
 			
 			quadradoArraste.x = posQuadradoArraste;
+			atualizaPos();
 			mudaCorEspectro();
 		}
 		
@@ -284,10 +285,10 @@
 		private var tutoBaloonPos:Array;
 		private var tutoPos:int;
 		//private var tutoPhaseFinal:Boolean;
-		private var tutoSequence:Array = ["Este é um espectro de cores. Você pode clicar sobre o espectro para visualizar a cor desejada.",
-										  "Esta caixa mostra a cor selecionada no espectro. Você pode arrastá-la para selecionar cores diferentes.",
-										  "Aqui é mostrado o valor do comprimento de onda da cor selecionada. Você pode entrar com um valor de comprimento de onda (entre 400 e 750) para verificar a cor associada.",
-										  "Aqui mostramos um exemplo de ondas para a visualização dos diferentes comprimentos de ondas associados às cores."];
+		private var tutoSequence:Array = ["Arraste o cursor para variar a cor...",
+										  "... e veja o comprimento de onda associado aqui.",
+										  "Ou digite o valor do comprimento de onda, dentro do intervalo 400-750 nm, e pressione \"enter\".",
+										  "veja aqui como a variação no comprimento de onda afeta a forma da onda (senoidal, neste caso)."];
 										  
 		private function iniciaTutorial(e:MouseEvent = null):void 
 		{
@@ -299,20 +300,22 @@
 				addChild(balao);
 				balao.visible = false;
 				
-				pointsTuto = 	[new Point(espectro.x + 30,espectro.y),
-								posQuadradoArraste,
-								new Point(125, 38),
+				pointsTuto = 	[posQuadradoArraste,
+								new Point(entradaComprimento.x + entradaComprimento.width / 2, entradaComprimento.y + entradaComprimento.height + 5),
+								new Point(entradaComprimento.x + entradaComprimento.width + 25, entradaComprimento.y + entradaComprimento.height / 2),
 								new Point(350, 130)];
 								
-				tutoBaloonPos = [[CaixaTexto.BOTTON, CaixaTexto.FIRST],
-								["" , CaixaTexto.CENTER],
+				tutoBaloonPos = [["" , CaixaTexto.CENTER],
+								[CaixaTexto.TOP, CaixaTexto.FIRST],
 								[CaixaTexto.LEFT, CaixaTexto.FIRST],
 								[CaixaTexto.TOP, CaixaTexto.CENTER]];
 			}
 			balao.removeEventListener(Event.CLOSE, closeBalao);
 			//feedBackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
-			
-			balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+			var pos:String;
+			if (quadradoArraste.x >= 350) pos = CaixaTexto.RIGHT;
+			else pos = CaixaTexto.LEFT;
+			balao.setText(tutoSequence[tutoPos], pos, tutoBaloonPos[tutoPos][1]);
 			balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
 			balao.addEventListener(Event.CLOSE, closeBalao);
 			balao.visible = true;
@@ -344,7 +347,7 @@
 					//feedBackScreen.addEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
 					//tutoPhaseFinal = true;
 				}else {
-					if (tutoPos == 1) {
+					if (tutoPos == 0) {
 						var pos:String;
 						if (quadradoArraste.x >= 350) pos = CaixaTexto.RIGHT;
 						else pos = CaixaTexto.LEFT;
