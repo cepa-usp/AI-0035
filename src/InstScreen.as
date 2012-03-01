@@ -1,4 +1,4 @@
-package 
+﻿package 
 {
 	import flash.display.MovieClip;
 	import flash.events.Event;
@@ -23,7 +23,7 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			this.x = 700 / 2;
-			this.y = 280 / 2;
+			this.y = 323 / 2;
 			
 			this.gotoAndStop("END");
 			

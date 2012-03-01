@@ -1,4 +1,4 @@
-package 
+﻿package 
 {
 	import cepa.utils.ToolTip;
 	import flash.display.Sprite;
@@ -39,7 +39,7 @@ package
 
 		private var rectangle:Sprite = new Sprite();
 		
-		private var espectroWidth:Number = 590;
+		private var espectroWidth:Number = 600;
 		
 		private var orientacoesScreen:InstScreen;
 		private var creditosScreen:AboutScreen;
@@ -54,7 +54,7 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
-			scrollRect = new Rectangle(0, 0, 700, 280);
+			scrollRect = new Rectangle(0, 0, 700, 323);
 			
 			creditosScreen = new AboutScreen();
 			addChild(creditosScreen);
@@ -64,21 +64,24 @@ package
 			TextField(entradaComprimento).restrict = "0123456789";
 			
 			addChild(sprCurva);
-			sprCurva.x = 30 + espectroWidth / 2;
-			sprCurva.y = 45;
+			sprCurva.x = 50 + espectroWidth / 2;
+			sprCurva.y = 100;
+			
+			setChildIndex(sprCurva, 0);
 			
 			if(fixed){
 				widthSprCurva = espectroWidth;
 			}else{
-				widthSprCurva = 50;
+				widthSprCurva = 55;
 			}
 			
 			quadradoArraste.addChild(rectangle);
+			quadradoArraste.setChildIndex(rectangle, 0);
 			quadradoArraste.buttonMode = true;
 
 			addChild(espectro);
-			espectro.x = 30;
-			espectro.y = 148;
+			espectro.x = 50;
+			espectro.y = 186.1;
 			espectro.width = espectroWidth;
 			mudaCorEspectro();
 
@@ -165,7 +168,7 @@ package
 
 		private function clickEspectro(e:MouseEvent):void
 		{
-			if((stage.mouseY >= 148 && stage.mouseY < 178) && (stage.mouseX >= 25 && stage.mouseX < espectroWidth + espectro.x))
+			if((stage.mouseY >= espectro.y && stage.mouseY < espectro.y + espectro.height) && (stage.mouseX >= espectro.x && stage.mouseX < espectroWidth + espectro.x))
 			{
 				quadradoArraste.x = stage.mouseX;
 				mudaCorEspectro();
@@ -201,13 +204,14 @@ package
 		private function mudaCorEspectro():void
 		{
 			var posComprimento:Number = quadradoArraste.x;
-			var posColor:Number = quadradoArraste.x * (500/espectroWidth);
+			var posColor:Number = (quadradoArraste.x - espectro.x) * (550/espectroWidth);
 			var corEspectro:int = BMDEspectro.getPixel(posColor, 15);
 			
 			rectangle.graphics.clear();
 			
 			rectangle.graphics.beginFill(corEspectro);
-			rectangle.graphics.drawRect(-16, -67, 32, 134);
+			//rectangle.graphics.drawRect(-16, -67, 32, 134);
+			rectangle.graphics.drawCircle(0, 0, 75/2);
 			
 			//var comprimentoOnda:Number = Math.round(((350 / 549) * posComprimento) + 400);
 			var comprimentoOnda:Number = Math.round(((350 / (espectroWidth - 1)) * (posComprimento - espectro.x)) + 400);
@@ -250,7 +254,7 @@ package
 		
 		private function reset(e:MouseEvent):void 
 		{
-			entradaComprimento.text = "590";
+			entradaComprimento.text = "575";
 			
 			var posQuadradoArraste:Number = Math.round((((Number(entradaComprimento.text) - 400) * (espectroWidth - 1)) / 350) + espectro.x);
 			
@@ -281,14 +285,14 @@ package
 				addChild(balao);
 				balao.visible = false;
 				
-				pointsTuto = 	[new Point(70,160),
+				pointsTuto = 	[new Point(espectro.x + 30,espectro.y),
 								posQuadradoArraste,
-								new Point(entradaComprimento.x + (entradaComprimento.width / 2), entradaComprimento.y),
-								new Point(350, 80)];
+								new Point(125, 38),
+								new Point(350, 130)];
 								
 				tutoBaloonPos = [[CaixaTexto.BOTTON, CaixaTexto.FIRST],
 								["" , CaixaTexto.CENTER],
-								[CaixaTexto.BOTTON, CaixaTexto.CENTER],
+								[CaixaTexto.LEFT, CaixaTexto.FIRST],
 								[CaixaTexto.TOP, CaixaTexto.CENTER]];
 			}
 			balao.removeEventListener(Event.CLOSE, closeBalao);
