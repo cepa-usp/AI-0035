@@ -13,6 +13,7 @@ package
 	import cepa.graph.rectangular.SimpleGraph;
 	import cepa.graph.DataStyle;
 	import cepa.graph.GraphFunction;
+	import flash.text.TextField;
 	import flash.ui.Keyboard;
 
 	/**
@@ -23,8 +24,8 @@ package
 	{
 		private var sprCurva:Sprite = new Sprite();
 		
-		private var wMin:Number = 0.125;
-		private var wMax:Number = 0.565;
+		private var wMin:Number = 0.032;
+		private var wMax:Number = 0.965;
 		
 		private var fixed:Boolean = true; 	//true: posição fixa do sprite que contém a curva do comprimento de onda.
 											//false: posição variável, de acordo com o sprite que muda as cores.
@@ -60,11 +61,14 @@ package
 			orientacoesScreen = new InstScreen();
 			addChild(orientacoesScreen);
 			
+			TextField(entradaComprimento).restrict = "0123456789";
+			
 			addChild(sprCurva);
+			sprCurva.x = 30 + espectroWidth / 2;
 			sprCurva.y = 45;
 			
 			if(fixed){
-				widthSprCurva = 600;
+				widthSprCurva = espectroWidth;
 			}else{
 				widthSprCurva = 50;
 			}
@@ -87,23 +91,17 @@ package
 			
 			reset(null);
 			setChildIndex(borda, numChildren - 1);
+			
+			iniciaTutorial();
 		}
 		
 		private function addListeners():void
 		{
 			entradaComprimento.addEventListener(KeyboardEvent.KEY_DOWN, entradaHandler);
-			
-			//aboutButton.addEventListener(MouseEvent.CLICK, showHideInfo);
-			//informacoes.addEventListener(MouseEvent.CLICK, showHideInfo);
-			
-			//instructionButton.addEventListener(MouseEvent.CLICK, showHideHowTo);
-			//howTo.addEventListener(MouseEvent.CLICK, showHideHowTo);
-			
 			quadradoArraste.addEventListener(MouseEvent.MOUSE_DOWN, iniciaArraste);
-			
 			stage.addEventListener(MouseEvent.CLICK, clickEspectro);
 			
-			//botoes.tutorialBtn.addEventListener(MouseEvent.CLICK, iniciaTutorial);
+			botoes.tutorialBtn.addEventListener(MouseEvent.CLICK, iniciaTutorial);
 			botoes.orientacoesBtn.addEventListener(MouseEvent.CLICK, openOrientacoes);
 			botoes.resetButton.addEventListener(MouseEvent.CLICK, reset);
 			botoes.creditos.addEventListener(MouseEvent.CLICK, openCreditos);
@@ -238,7 +236,12 @@ package
 			sprCurva.graphics.lineStyle(1, 0x000000);
 			sprCurva.graphics.moveTo(0,0);
 			
-			for(var i:Number = 0 * Math.PI; i < widthSprCurva; i+= passo){
+			//for(var i:Number = 0 * Math.PI; i < widthSprCurva; i+= passo){
+				//sprCurva.graphics.moveTo(i,amplitude * Math.sin(i * w));
+				//sprCurva.graphics.lineTo(i+passo, amplitude * Math.sin((i+passo) * w));
+			//}
+			
+			for(var i:Number = -widthSprCurva / 2; i < widthSprCurva / 2; i+= passo){
 				sprCurva.graphics.moveTo(i,amplitude * Math.sin(i * w));
 				sprCurva.graphics.lineTo(i+passo, amplitude * Math.sin((i+passo) * w));
 			}
@@ -254,6 +257,99 @@ package
 			quadradoArraste.x = posQuadradoArraste;
 			mudaCorEspectro();
 		}
+		
+		
+		//Tutorial
+		private var posQuadradoArraste:Point = new Point();
+		private var balao:CaixaTexto;
+		private var pointsTuto:Array;
+		private var tutoBaloonPos:Array;
+		private var tutoPos:int;
+		//private var tutoPhaseFinal:Boolean;
+		private var tutoSequence:Array = ["Este é um espectro de cores. Você pode clicar sobre o espectro para visualizar a cor desejada.",
+										  "Esta caixa mostra a cor selecionada no espectro. Você pode arrastá-la para selecionar cores diferentes.",
+										  "Aqui é mostrado o valor do comprimento de onda da cor selecionada. Você pode entrar com um valor de comprimento de onda (entre 400 e 750) para verificar a cor associada.",
+										  "Aqui mostramos um exemplo de ondas para a visualização dos diferentes comprimentos de ondas associados às cores."];
+										  
+		private function iniciaTutorial(e:MouseEvent = null):void 
+		{
+			atualizaPos();
+			tutoPos = 0;
+			//tutoPhaseFinal = false;
+			if(balao == null){
+				balao = new CaixaTexto(true);
+				addChild(balao);
+				balao.visible = false;
+				
+				pointsTuto = 	[new Point(70,160),
+								posQuadradoArraste,
+								new Point(entradaComprimento.x + (entradaComprimento.width / 2), entradaComprimento.y),
+								new Point(350, 80)];
+								
+				tutoBaloonPos = [[CaixaTexto.BOTTON, CaixaTexto.FIRST],
+								["" , CaixaTexto.CENTER],
+								[CaixaTexto.BOTTON, CaixaTexto.CENTER],
+								[CaixaTexto.TOP, CaixaTexto.CENTER]];
+			}
+			balao.removeEventListener(Event.CLOSE, closeBalao);
+			//feedBackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+			
+			balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+			balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+			balao.addEventListener(Event.CLOSE, closeBalao);
+			balao.visible = true;
+		}
+		
+		private function atualizaPos():void
+		{
+			if (quadradoArraste.x >= 350) {
+				posQuadradoArraste.x = quadradoArraste.x - (quadradoArraste.width / 2);
+			}
+			else {
+				posQuadradoArraste.x = quadradoArraste.x + (quadradoArraste.width / 2);
+			}
+			posQuadradoArraste.y = quadradoArraste.y;
+		}
+		
+		private function closeBalao(e:Event):void 
+		{
+			atualizaPos();
+			/*if (tutoPhaseFinal) {
+				balao.removeEventListener(Event.CLOSE, closeBalao);
+				balao.visible = false;
+				feedBackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+			}else{*/
+				tutoPos++;
+				if (tutoPos >= tutoSequence.length) {
+					balao.removeEventListener(Event.CLOSE, closeBalao);
+					balao.visible = false;
+					//feedBackScreen.addEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+					//tutoPhaseFinal = true;
+				}else {
+					if (tutoPos == 1) {
+						var pos:String;
+						if (quadradoArraste.x >= 350) pos = CaixaTexto.RIGHT;
+						else pos = CaixaTexto.LEFT;
+						balao.setText(tutoSequence[tutoPos], pos, tutoBaloonPos[tutoPos][1]);
+						balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+					}else{
+						balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+						balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+					}
+				}
+			//}
+		}
+		
+		/*
+		private function iniciaTutorialSegundaFase(e:Event):void 
+		{
+			if(tutoPhaseFinal){
+				balao.setText("Você pode começar um novo exercício clicando aqui.", tutoBaloonPos[2][0], tutoBaloonPos[2][1]);
+				balao.setPosition(160, pointsTuto[2].y);
+				tutoPhaseFinal = false;
+			}
+		}
+		*/
 		
 	}
 
