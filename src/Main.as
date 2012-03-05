@@ -240,7 +240,7 @@
 			
 			quadradoArraste.x = posQuadradoArraste;
 			if(!fixed) sprCurva.x = quadradoArraste.x - widthSprCurva/2;
-			desenhaCurva(posQuadradoArraste);
+			desenhaCurva((750 - posQuadradoArraste) * 0.5);
 			
 		}
 
